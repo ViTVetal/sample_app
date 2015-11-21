@@ -47,6 +47,17 @@ describe "Static pages" do
           expect(page).to have_selector("li##{item.id}", text: item.content)
         end
       end
+
+      it "should render the user's posts count in multi form" do
+         expect(page).to have_content("#{user.feed.count} microposts")
+      end
+
+      it "should render the user's posts count in one form" do
+        user.feed.destroy_all
+        FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
+        visit root_path
+        expect(page).to have_content("#{user.feed.count} micropost")
+      end
     end
   end
 
