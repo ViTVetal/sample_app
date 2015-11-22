@@ -2,8 +2,12 @@ require 'spec_helper'
 
 describe User do
 
-  before { @user = User.new(name: "Example User", email: "user@example.com",
-  							password: "foobar", password_confirmation: "foobar") }
+  before do 
+    @user = User.new(name: "Example User", email: "user@example.com",
+  							password: "foobar", password_confirmation: "foobar")
+    @another_user = User.new(name: "Example User1", email: "user1@example.com",
+                password: "foobar", password_confirmation: "foobar")
+  end  
 
   subject { @user }
 
@@ -152,6 +156,32 @@ describe User do
       expect(microposts).not_to be_empty
       microposts.each do |micropost|
         expect(Micropost.where(id: micropost.id)).to be_empty
+      end
+    end
+
+    it "should destroy associated relationships" do
+      @another_user.save
+      @user.save
+
+      @user.follow!(@another_user)
+      releationsips = @user.relationships.to_a
+      @user.destroy
+      expect(releationsips).not_to be_empty
+      releationsips.each do |relationship|
+        expect(Relationship.where(id: relationship.id)).to be_empty
+      end
+    end
+
+    it "should destroy associated reverse_relationships" do
+      @another_user.save
+      @user.save
+
+      @another_user.follow!(@user)
+      reverse_releationsips = @user.reverse_relationships.to_a
+      @user.destroy
+      expect(reverse_releationsips).not_to be_empty
+      reverse_releationsips.each do |reverse_relationship|
+        expect(Relationship.where(id: reverse_relationship.id)).to be_empty
       end
     end
 
